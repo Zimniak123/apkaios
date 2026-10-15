@@ -1,0 +1,54 @@
+name: Build iOS IPA (Sideloadly Ready)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-unsigned-ipa:
+    name: Kompilacja PassportHub (.ipa)
+    runs-on: macos-15
+
+    steps:
+      - name: 1. Pobranie kodu z repozytorium
+        uses: actions/checkout@v4
+
+      - name: 2. Instalacja XcodeGen (jeśli brakuje)
+        run: |
+          if ! command -v xcodegen &> /dev/null; then
+            brew install xcodegen
+          fi
+
+      - name: 3. Wygenerowanie projektu Xcode z pliku project.yml
+        run: xcodegen generate
+
+      - name: 4. Kompilacja aplikacji dla iOS (bez podpisu)
+        run: |
+          xcodebuild clean build \
+            -project PassportHub.xcodeproj \
+            -scheme PassportHub \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
+
+      - name: 5. Zbudowanie paczki Payload i spakowanie do pliku PassportHub.ipa
+        run: |
+          mkdir -p Payload
+          cp -r build/Build/Products/Release-iphoneos/PassportHub.app Payload/
+          zip -r9 PassportHub.ipa Payload
+
+      - name: 6. Udostępnienie gotowego pliku .ipa do pobrania
+        uses: actions/upload-artifact@v4
+        with:
+          name: PassportHub-iOS-IPA
+          path: PassportHub.ipa
+          if-no-files-found: error
+          retention-days: 30
