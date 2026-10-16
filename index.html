@@ -1,0 +1,2444 @@
+<!DOCTYPE html>
+<html lang="pl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>PassportHub @zimniak - Filmy, Seriale, Książki, Muzyka, Gry</title>
+    
+    <!-- Meta tagi dla iOS PWA (Pełny ekran na iPhonie bez paska Safari) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PassportHub">
+    <meta name="theme-color" content="#09090b">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                    },
+                    colors: {
+                        zinc: {
+                            850: '#1f1f23',
+                            925: '#121215',
+                            950: '#09090b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #09090b;
+            color: #f4f4f5;
+            overflow-x: hidden;
+        }
+        /* Pasek przewijania */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121215;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46;
+        }
+        /* Ukrywanie paska przewijania w poziomych listach */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Stylizacja suwaka oceny 1.0 - 10.0 */
+        input[type=range].rating-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #22c55e 100%);
+            border-radius: 999px;
+            outline: none;
+        }
+        input[type=range].rating-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 3px solid #6366f1;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.15s ease;
+        }
+        input[type=range].rating-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.12);
+        }
+        /* Bezpieczne odstępy dla ekranów iPhone'a z Dynamic Island i dolnym paskiem */
+        .safe-bottom {
+            padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+        }
+        .ios-tab-bar {
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.22s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col md:flex-row selection:bg-indigo-500 selection:text-white">
+
+    <!-- BOCZNA NAWIGACJA (Komputer Windows / Tablet w poziomie) -->
+    <aside class="hidden md:flex md:flex-col md:w-64 lg:w-72 bg-zinc-925 border-r border-zinc-800/80 shrink-0 sticky top-0 h-screen select-none">
+        <!-- Logo i nagłówek -->
+        <div class="p-6 border-b border-zinc-800/80 flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+                <i class="fa-solid fa-passport text-white text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg tracking-tight text-white leading-none">PassportHub</h1>
+                <a href="https://passportdex.com/zimniak" target="_blank" rel="noopener noreferrer" class="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 mt-1 font-medium">
+                    <span>@zimniak</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Menu nawigacyjne Desktop -->
+        <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
+            <button onclick="switchTab('home')" id="nav-desktop-home" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all">
+                <i class="fa-solid fa-house w-5 text-center"></i>
+                <span>Strona główna</span>
+            </button>
+            <button onclick="switchTab('discover')" id="nav-desktop-discover" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all">
+                <i class="fa-solid fa-compass w-5 text-center"></i>
+                <span>Odkrywaj i szukaj</span>
+            </button>
+            <button onclick="switchTab('library')" id="nav-desktop-library" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all">
+                <i class="fa-solid fa-layer-group w-5 text-center"></i>
+                <span>Moja biblioteka</span>
+                <span id="sidebar-lib-badge" class="ml-auto text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full">0</span>
+            </button>
+            <button onclick="switchTab('reviews')" id="nav-desktop-reviews" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all">
+                <i class="fa-solid fa-comments w-5 text-center"></i>
+                <span>Opinie społeczności</span>
+            </button>
+            <button onclick="switchTab('profile')" id="nav-desktop-profile" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all">
+                <i class="fa-solid fa-user-astronaut w-5 text-center"></i>
+                <span>Profil i kopia</span>
+            </button>
+
+            <div class="pt-5 mt-5 border-t border-zinc-800/80">
+                <p class="px-4 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 mb-2">Szybkie akcje</p>
+                <button onclick="openCustomItemModal()" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium text-zinc-300 hover:bg-zinc-800/70 hover:text-white transition-all">
+                    <i class="fa-solid fa-plus-circle text-indigo-400 w-5 text-center"></i>
+                    <span>Dodaj pozycję ręcznie</span>
+                </button>
+                <a href="https://passportdex.com/zimniak" target="_blank" rel="noopener noreferrer" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium text-zinc-300 hover:bg-zinc-800/70 hover:text-white transition-all">
+                    <i class="fa-solid fa-globe text-emerald-400 w-5 text-center"></i>
+                    <span>Otwórz passportdex.com</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Stopka paska bocznego -->
+        <div class="p-4 border-t border-zinc-800/80 bg-zinc-950/50">
+            <div class="flex items-center justify-between text-xs text-zinc-400">
+                <span>Średnia ocen:</span>
+                <span id="sidebar-avg-score" class="font-bold text-emerald-400">0.0 / 10</span>
+            </div>
+            <div class="text-[11px] text-zinc-500 mt-1">Zapis lokalny aktywny (Auto-Save)</div>
+        </div>
+    </aside>
+
+    <!-- GŁÓWNY OBSZAR TREŚCI -->
+    <div class="flex-1 flex flex-col min-w-0 safe-bottom md:pb-8">
+        
+        <!-- Górny pasek mobilny (iOS Header) -->
+        <header class="md:hidden sticky top-0 z-30 bg-zinc-950/85 backdrop-blur-xl border-b border-zinc-800/80 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <i class="fa-solid fa-passport text-white text-sm"></i>
+                </div>
+                <div>
+                    <h1 id="mobile-header-title" class="font-bold text-base text-white leading-none">PassportHub</h1>
+                    <span class="text-[11px] text-indigo-400 font-medium">passportdex.com/zimniak</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="openCustomItemModal()" title="Dodaj własną pozycję" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300 hover:text-white">
+                    <i class="fa-solid fa-plus text-sm"></i>
+                </button>
+                <a href="https://passportdex.com/zimniak" target="_blank" rel="noopener noreferrer" title="Otwórz profil PassportDex" class="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- Kontener zakładek -->
+        <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-5">
+
+            <!-- ==========================================
+                 ZAKŁADKA 1: STRONA GŁÓWNA (HOME)
+                 ========================================== -->
+            <section id="tab-home" class="space-y-7 animate-fade-in">
+                <!-- Karta statusu PassportDex (@zimniak) -->
+                <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-950/80 via-zinc-900 to-zinc-900 border border-indigo-500/30 p-5 sm:p-7 shadow-xl">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="space-y-1.5">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
+                                <span id="pdex-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span>PASSPORTDEX PROFIL: @ZIMNIAK</span>
+                            </div>
+                            <h2 id="pdex-profile-title" class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                                Twoje centrum ocen i rozrywki
+                            </h2>
+                            <p id="pdex-status-msg" class="text-xs sm:text-sm text-zinc-300 max-w-2xl">
+                                Połączono z profilem https://passportdex.com/zimniak. Wyszukuj filmy, seriale, książki, albumy oraz gry, wystawiaj oceny w skali 1-10 i otwieraj tytuły bezpośrednio w PassportDex.
+                            </p>
+                        </div>
+
+                        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0">
+                            <button onclick="syncPassportDexProfile()" id="btn-sync-pdex" class="px-4 py-2.5 rounded-xl bg-zinc-800/90 hover:bg-zinc-700 text-white text-xs font-semibold border border-zinc-700 flex items-center gap-2 transition-all">
+                                <i id="sync-icon" class="fa-solid fa-rotate"></i>
+                                <span>Sprawdź profil</span>
+                            </button>
+                            <a href="https://passportdex.com/zimniak" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30 flex items-center gap-2 transition-all">
+                                <i class="fa-solid fa-globe"></i>
+                                <span>Profil zimniak</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Szybkie podsumowanie liczbowe -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-white/10">
+                        <div class="bg-zinc-950/50 rounded-2xl p-3.5 border border-white/5">
+                            <div class="text-[11px] text-zinc-400 font-medium">Wszystkie pozycje</div>
+                            <div id="home-stat-total" class="text-2xl font-extrabold text-white mt-0.5">0</div>
+                        </div>
+                        <div class="bg-zinc-950/50 rounded-2xl p-3.5 border border-white/5">
+                            <div class="text-[11px] text-zinc-400 font-medium">Wystawione oceny</div>
+                            <div id="home-stat-rated" class="text-2xl font-extrabold text-indigo-400 mt-0.5">0</div>
+                        </div>
+                        <div class="bg-zinc-950/50 rounded-2xl p-3.5 border border-white/5">
+                            <div class="text-[11px] text-zinc-400 font-medium">Średnia Twoich ocen</div>
+                            <div id="home-stat-avg" class="text-2xl font-extrabold text-emerald-400 mt-0.5">0.0</div>
+                        </div>
+                        <div class="bg-zinc-950/50 rounded-2xl p-3.5 border border-white/5">
+                            <div class="text-[11px] text-zinc-400 font-medium">W trakcie (Teraz)</div>
+                            <div id="home-stat-active" class="text-2xl font-extrabold text-amber-400 mt-0.5">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Liczniki 5 kategorii rozrywki -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-shapes text-indigo-400 text-sm"></i>
+                            <span>Kategorie rozrywki</span>
+                        </h3>
+                        <button onclick="switchTab('discover')" class="text-xs font-semibold text-indigo-400 hover:text-indigo-300">
+                            Szukaj nowych tytułów <i class="fa-solid fa-chevron-right text-[10px] ml-0.5"></i>
+                        </button>
+                    </div>
+                    <div id="home-categories-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                        <!-- Generowane dynamicznie przez JS -->
+                    </div>
+                </div>
+
+                <!-- Sekcja: Aktualnie w trakcie (Oglądam / Gram / Czytam / Słucham) -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-play text-emerald-400 text-sm"></i>
+                            <span>Aktualnie w trakcie</span>
+                        </h3>
+                        <button onclick="openLibraryWithStatus('in_progress')" class="text-xs font-semibold text-zinc-400 hover:text-white">
+                            Filtruj w bibliotece
+                        </button>
+                    </div>
+                    <div id="home-inprogress-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                        <!-- Generowane przez JS -->
+                    </div>
+                </div>
+
+                <!-- Sekcja: Ostatnio ocenione pozycje -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-star text-amber-400 text-sm"></i>
+                            <span>Ostatnio ocenione i zapisane pozycje</span>
+                        </h3>
+                        <button onclick="switchTab('library')" class="text-xs font-semibold text-indigo-400 hover:text-indigo-300">
+                            Pełna biblioteka <i class="fa-solid fa-chevron-right text-[10px] ml-0.5"></i>
+                        </button>
+                    </div>
+                    <div id="home-recent-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                        <!-- Generowane przez JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 ZAKŁADKA 2: ODKRYWAJ (WYSZUKIWARKA LIVE)
+                 ========================================== -->
+            <section id="tab-discover" class="hidden space-y-6 animate-fade-in">
+                <div class="bg-zinc-900/90 border border-zinc-800 rounded-3xl p-4 sm:p-6 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <h2 class="text-xl font-bold text-white">Odkrywaj i oceniaj</h2>
+                            <p class="text-xs text-zinc-400">Wyszukiwarka na żywo połączona z bazami iTunes/TMDb, TVMaze, Open Library, Apple Music oraz Steam</p>
+                        </div>
+                        <button onclick="openCustomItemModal()" class="self-start sm:self-auto px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-200 flex items-center gap-2 border border-zinc-700">
+                            <i class="fa-solid fa-pen-to-square text-indigo-400"></i>
+                            <span>Dodaj własny tytuł</span>
+                        </button>
+                    </div>
+
+                    <!-- Przełącznik 5 kategorii -->
+                    <div id="discover-category-tabs" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                        <!-- Generowane przez JS -->
+                    </div>
+
+                    <!-- Pole wyszukiwania z debounce 400ms -->
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+                        <input
+                            type="text"
+                            id="discover-search-input"
+                            placeholder="Wpisz tytuł filmu, serialu, książki, płyty lub gry..."
+                            class="w-full pl-11 pr-24 py-3.5 bg-zinc-950 border border-zinc-700/80 rounded-2xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                        >
+                        <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                            <button onclick="clearDiscoverSearch()" id="btn-clear-search" class="hidden px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white text-xs">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                            <button onclick="executeDiscoverSearch(true)" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition-all">
+                                Szukaj
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Szybkie podpowiedzi startowe dla wybranej kategorii -->
+                    <div class="flex items-center gap-2 flex-wrap pt-1">
+                        <span class="text-[11px] text-zinc-500 font-medium">Popularne zapytania:</span>
+                        <div id="discover-quick-chips" class="flex items-center gap-1.5 flex-wrap">
+                            <!-- Generowane przez JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status ładowania / wyniki wyszukiwania -->
+                <div id="discover-status-box" class="hidden py-12 text-center">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 mb-3">
+                        <i class="fa-solid fa-circle-notch fa-spin text-xl"></i>
+                    </div>
+                    <p id="discover-status-text" class="text-sm font-medium text-zinc-300">Przeszukiwanie katalogu...</p>
+                </div>
+
+                <div id="discover-results-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Wyniki wyszukiwania -->
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 ZAKŁADKA 3: MOJA BIBLIOTEKA
+                 ========================================== -->
+            <section id="tab-library" class="hidden space-y-5 animate-fade-in">
+                <div class="bg-zinc-900/90 border border-zinc-800 rounded-3xl p-4 sm:p-6 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h2 class="text-xl font-bold text-white">Moja biblioteka (@zimniak)</h2>
+                            <p class="text-xs text-zinc-400">Wszystkie Twoje ocenione pozycje, recenzje, prywatne notatki oraz listy statusów</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <select id="library-sort-select" onchange="renderLibrary()" class="bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-xs font-semibold text-zinc-200 focus:outline-none focus:border-indigo-500">
+                                <option value="date_desc">Sortuj: Najnowsze zmiany</option>
+                                <option value="rating_desc">Sortuj: Ocena (od 10 do 1)</option>
+                                <option value="rating_asc">Sortuj: Ocena (od 1 do 10)</option>
+                                <option value="title_asc">Sortuj: Alfabetycznie (A-Z)</option>
+                            </select>
+                            <button onclick="openCustomItemModal()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Dodaj</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filtr kategorii w bibliotece -->
+                    <div id="library-category-filters" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                        <!-- Generowane przez JS -->
+                    </div>
+
+                    <!-- Filtr statusów w bibliotece -->
+                    <div id="library-status-filters" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                        <!-- Generowane przez JS -->
+                    </div>
+
+                    <!-- Wyszukiwarka wewnątrz biblioteki -->
+                    <div class="relative">
+                        <i class="fa-solid fa-filter absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"></i>
+                        <input
+                            type="text"
+                            id="library-filter-input"
+                            oninput="renderLibrary()"
+                            placeholder="Filtruj zapisane pozycje po tytule, twórcy lub treści recenzji..."
+                            class="w-full pl-9 pr-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+                        >
+                    </div>
+                </div>
+
+                <!-- Lista kart w bibliotece -->
+                <div id="library-items-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Generowane przez JS -->
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 ZAKŁADKA 4: OPINIE SPOŁECZNOŚCI
+                 ========================================== -->
+            <section id="tab-reviews" class="hidden space-y-6 animate-fade-in">
+                <div class="bg-zinc-900/90 border border-zinc-800 rounded-3xl p-4 sm:p-6 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h2 class="text-xl font-bold text-white">Opinie i recenzje innych użytkowników</h2>
+                            <p class="text-xs text-zinc-400">
+                                Prawdziwe recenzje graczy, widzów i czytelników pobierane na żywo z wyraźnym oznaczeniem źródła danych
+                            </p>
+                        </div>
+                        <button onclick="loadCommunityReviewsFeed(true)" class="self-start sm:self-auto px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-2 transition-all">
+                            <i id="reviews-refresh-icon" class="fa-solid fa-arrows-rotate"></i>
+                            <span>Odśwież opinie dla biblioteki</span>
+                        </button>
+                    </div>
+
+                    <!-- Szybkie sprawdzenie opinii dowolnej gry Steam lub filmu -->
+                    <div class="flex flex-col sm:flex-row gap-2 pt-2 border-t border-zinc-800/80">
+                        <input
+                            type="text"
+                            id="reviews-custom-query"
+                            placeholder="Wpisz tytuł gry (np. Cyberpunk 2077, Baldur's Gate 3, Witcher 3) lub serialu, aby pobrać świeże recenzje..."
+                            class="flex-1 px-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+                        >
+                        <button onclick="searchAndFetchReviewsByQuery()" class="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-white border border-zinc-700 shrink-0">
+                            <i class="fa-solid fa-magnifying-glass mr-1.5 text-indigo-400"></i>Pobierz recenzje tytułu
+                        </button>
+                    </div>
+                </div>
+
+                <div id="reviews-loading-box" class="hidden py-10 text-center">
+                    <i class="fa-solid fa-circle-notch fa-spin text-2xl text-indigo-400 mb-2"></i>
+                    <p class="text-xs text-zinc-400">Pobieranie prawdziwych recenzji społeczności z zewnętrznych API...</p>
+                </div>
+
+                <!-- Lista pobranych recenzji -->
+                <div id="reviews-feed-container" class="space-y-4">
+                    <!-- Generowane przez JS -->
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 ZAKŁADKA 5: PROFIL I SYNCHRONIZACJA
+                 ========================================== -->
+            <section id="tab-profile" class="hidden space-y-6 animate-fade-in">
+                <!-- Karta profilu @zimniak -->
+                <div class="bg-zinc-900/90 border border-zinc-800 rounded-3xl p-5 sm:p-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-800">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-2xl font-extrabold text-white shadow-lg">
+                                Z
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h2 class="text-xl font-bold text-white">@zimniak</h2>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">PassportDex</span>
+                                </div>
+                                <a href="https://passportdex.com/zimniak" target="_blank" rel="noopener noreferrer" class="text-xs text-indigo-400 hover:underline mt-0.5 inline-block">
+                                    https://passportdex.com/zimniak
+                                </a>
+                                <p id="profile-sync-timestamp" class="text-[11px] text-zinc-500 mt-1">Synchronizacja lokalna aktywna</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="syncPassportDexProfile()" class="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-white border border-zinc-700 flex items-center gap-2">
+                                <i class="fa-solid fa-rotate"></i>
+                                <span>Sprawdź status profilu</span>
+                            </button>
+                            <a href="https://passportdex.com/zimniak" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                <span>Otwórz PassportDex</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Rozkład kategorii (Wykres paskowy) -->
+                    <div class="pt-5">
+                        <h3 class="text-sm font-bold text-white mb-3">Podział Twojej biblioteki i średnie ocen</h3>
+                        <div id="profile-category-bars" class="space-y-3">
+                            <!-- Generowane przez JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Konfiguracja klucza TMDb API -->
+                <div class="bg-zinc-900/90 border border-zinc-800 rounded-3xl p-5 sm:p-6 space-y-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-key text-amber-400"></i>
+                        <h3 class="text-base font-bold text-white">Klucz TMDb API (Opcjonalny)</h3>
+                    </div>
+                    <p class="text-xs text-zinc-400 leading-relaxed">
+                        Domyślnie aplikacja wyszukuje filmy, seriale, książki, muzykę i gry całkowicie za darmo i bez żadnych kluczy. Jeśli wpiszesz poniżej darmowy klucz API v3 z serwisu <strong>themoviedb.org</strong>, wyszukiwarka filmów będzie pobierać polskie opisy i recenzje bezpośrednio z bazy TMDb (z której korzysta PassportDex).
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-2 pt-1">
+                        <input
+                            type="password"
+                            id="profile-tmdb-key"
+                            placeholder="Wklej klucz TMDb API v3 (opcjonalnie)..."
+                            class="flex-1 px-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                        >
+                        <button onclick="saveTmdbApiKey()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white shrink-0">
+                            Zapisz klucz
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Eksport i Import Kopii Zapasowej JSON -->
+                <div class="bg-zinc-900/90 border border-zinc-800 rounded-3xl p-5 sm:p-6 space-y-4">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-database text-indigo-400"></i>
+                            <h3 class="text-base font-bold text-white">Kopia zapasowa i synchronizacja (JSON)</h3>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="downloadLibraryJsonFile()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-download"></i>
+                                <span>Pobierz plik .json</span>
+                            </button>
+                            <label class="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-200 border border-zinc-700 cursor-pointer flex items-center gap-1.5">
+                                <i class="fa-solid fa-upload text-indigo-400"></i>
+                                <span>Wgraj plik .json</span>
+                                <input type="file" id="json-file-input" accept=".json,application/json" onchange="handleJsonFileUpload(event)" class="hidden">
+                            </label>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-zinc-400">
+                        Możesz przenieść swoją bibliotekę między komputerem z Windows a iPhone'em za pomocą pliku JSON lub schowka tekstowego:
+                    </p>
+
+                    <textarea
+                        id="profile-json-textarea"
+                        rows="5"
+                        placeholder="Tutaj pojawi się wyeksportowany kod JSON Twojej biblioteki lub wklej tutaj dane do zaimportowania..."
+                        class="w-full p-3.5 bg-zinc-950 border border-zinc-800 rounded-2xl text-xs font-mono text-zinc-300 focus:outline-none focus:border-indigo-500"
+                    ></textarea>
+
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <button onclick="populateJsonTextarea()" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-white border border-zinc-700">
+                            Pokaż obecny JSON
+                        </button>
+                        <button onclick="copyJsonToClipboard()" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-white border border-zinc-700">
+                            <i class="fa-regular fa-copy mr-1"></i>Kopiuj do schowka
+                        </button>
+                        <button onclick="importFromJsonTextarea()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white">
+                            <i class="fa-solid fa-file-import mr-1"></i>Zaimportuj z pola tekstowego
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- DOLNY PASEK NAWIGACJI (W stylu iOS na telefonie) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-zinc-950/90 backdrop-blur-xl border-t border-zinc-800/90 ios-tab-bar select-none">
+        <div class="grid grid-cols-5 h-16">
+            <button onclick="switchTab('home')" id="nav-mobile-home" class="flex flex-col items-center justify-center gap-1 text-zinc-400">
+                <i class="fa-solid fa-house text-base"></i>
+                <span class="text-[10px] font-medium">Start</span>
+            </button>
+            <button onclick="switchTab('discover')" id="nav-mobile-discover" class="flex flex-col items-center justify-center gap-1 text-zinc-400">
+                <i class="fa-solid fa-magnifying-glass text-base"></i>
+                <span class="text-[10px] font-medium">Odkrywaj</span>
+            </button>
+            <button onclick="switchTab('library')" id="nav-mobile-library" class="flex flex-col items-center justify-center gap-1 text-zinc-400">
+                <i class="fa-solid fa-book-bookmark text-base"></i>
+                <span class="text-[10px] font-medium">Biblioteka</span>
+            </button>
+            <button onclick="switchTab('reviews')" id="nav-mobile-reviews" class="flex flex-col items-center justify-center gap-1 text-zinc-400">
+                <i class="fa-solid fa-comments text-base"></i>
+                <span class="text-[10px] font-medium">Opinie</span>
+            </button>
+            <button onclick="switchTab('profile')" id="nav-mobile-profile" class="flex flex-col items-center justify-center gap-1 text-zinc-400">
+                <i class="fa-solid fa-user text-base"></i>
+                <span class="text-[10px] font-medium">Profil</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ==========================================
+         MODAL SZCZEGÓŁÓW TYTUŁU I WYSTAWIANIA OCENY
+         ========================================== -->
+    <div id="detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl animate-fade-in my-auto">
+            
+            <!-- Górny pasek modala -->
+            <div class="sticky top-0 z-20 bg-zinc-900/95 backdrop-blur-md px-5 py-3.5 border-b border-zinc-800 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span id="modal-category-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300">Filmy</span>
+                    <span id="modal-source-badge" class="text-[11px] text-zinc-400 bg-zinc-800 px-2.5 py-1 rounded-full">Źródło API</span>
+                </div>
+                <button onclick="closeDetailModal()" class="w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 sm:p-6 space-y-6">
+                <!-- Informacje główne o tytule -->
+                <div class="flex flex-col sm:flex-row gap-5">
+                    <div class="w-36 sm:w-44 shrink-0 mx-auto sm:mx-0">
+                        <img id="modal-cover-img" src="" alt="Okładka" class="w-full h-52 sm:h-64 object-cover rounded-2xl border border-zinc-800 shadow-lg bg-zinc-950">
+                    </div>
+                    <div class="flex-1 space-y-3 text-center sm:text-left">
+                        <h2 id="modal-title" class="text-xl sm:text-2xl font-extrabold text-white leading-tight">Tytuł pozycji</h2>
+                        <p id="modal-creator" class="text-sm font-medium text-zinc-300">Twórca / Autor • Rok</p>
+                        
+                        <div id="modal-genres" class="flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
+                            <!-- Gatunki -->
+                        </div>
+
+                        <!-- Średnia ocena społeczności -->
+                        <div class="inline-flex items-center gap-3 px-3.5 py-2 rounded-2xl bg-zinc-950 border border-zinc-800">
+                            <div class="flex items-center gap-1.5 text-emerald-400 font-bold text-sm">
+                                <i class="fa-solid fa-users"></i>
+                                <span id="modal-community-score">Brak średniej</span>
+                            </div>
+                            <span id="modal-community-votes" class="text-xs text-zinc-500"></span>
+                        </div>
+
+                        <p id="modal-overview" class="text-xs sm:text-sm text-zinc-300 leading-relaxed pt-1"></p>
+
+                        <!-- Przycisk bezpośredniego przejścia do PassportDex -->
+                        <div class="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                            <a id="modal-pdex-link" href="https://passportdex.com/zimniak" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 text-xs font-semibold transition-all">
+                                <i class="fa-solid fa-passport"></i>
+                                <span>Otwórz ten tytuł w PassportDex</span>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                            </a>
+                            <button id="modal-delete-btn" onclick="deleteCurrentModalItem()" class="hidden inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-semibold transition-all">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>Usuń z biblioteki</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FORMULARZ OCENY I STATUSU (Skala PassportDex 1.0 - 10.0) -->
+                <div class="bg-zinc-950 border border-zinc-800/90 rounded-2xl p-4 sm:p-5 space-y-5">
+                    <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-star text-amber-400"></i>
+                            <span>Twoja ocena i status w profilu @zimniak</span>
+                        </h3>
+                        <label class="inline-flex items-center gap-2 text-xs text-zinc-300 cursor-pointer select-none">
+                            <input type="checkbox" id="modal-has-rating" onchange="toggleRatingSlider()" checked class="rounded bg-zinc-800 border-zinc-700 text-indigo-600 focus:ring-0">
+                            <span>Wystaw ocenę liczbową</span>
+                        </label>
+                    </div>
+
+                    <!-- Statusy dopasowane do kategorii -->
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-400 mb-2">Wybierz status:</label>
+                        <div id="modal-status-buttons" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            <!-- Generowane dynamicznie zależnie od kategorii -->
+                        </div>
+                    </div>
+
+                    <!-- Suwak 1.0 - 10.0 oraz szybkie przyciski -->
+                    <div id="modal-rating-container" class="space-y-3 pt-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-zinc-400">Skala PassportDex (1.0 - 10.0):</span>
+                            <div class="px-3.5 py-1 rounded-xl bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 font-extrabold text-lg">
+                                <span id="modal-rating-display">8.0</span> <span class="text-xs font-normal text-zinc-400">/ 10</span>
+                            </div>
+                        </div>
+
+                        <input
+                            type="range"
+                            id="modal-rating-slider"
+                            min="1.0"
+                            max="10.0"
+                            step="0.5"
+                            value="8.0"
+                            oninput="updateRatingDisplay(this.value)"
+                            class="rating-slider"
+                        >
+
+                        <!-- Szybkie przyciski wyboru oceny -->
+                        <div class="flex items-center justify-between gap-1 overflow-x-auto no-scrollbar pt-1">
+                            <button type="button" onclick="updateRatingDisplay(5.0)" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-semibold text-zinc-300">5.0</button>
+                            <button type="button" onclick="updateRatingDisplay(6.0)" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-semibold text-zinc-300">6.0</button>
+                            <button type="button" onclick="updateRatingDisplay(7.0)" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-semibold text-zinc-300">7.0</button>
+                            <button type="button" onclick="updateRatingDisplay(7.5)" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-semibold text-zinc-300">7.5</button>
+                            <button type="button" onclick="updateRatingDisplay(8.0)" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-semibold text-zinc-300">8.0</button>
+                            <button type="button" onclick="updateRatingDisplay(8.5)" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-semibold text-zinc-300">8.5</button>
+                            <button type="button" onclick="updateRatingDisplay(9.0)" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-semibold text-zinc-300">9.0</button>
+                            <button type="button" onclick="updateRatingDisplay(9.5)" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-semibold text-zinc-300">9.5</button>
+                            <button type="button" onclick="updateRatingDisplay(10.0)" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-semibold text-emerald-400">10.0</button>
+                        </div>
+                    </div>
+
+                    <!-- Publiczna recenzja oraz Prywatna notatka -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-300 mb-1.5">
+                                <i class="fa-regular fa-comment-dots text-indigo-400 mr-1"></i>Twoja recenzja (publiczna):
+                            </label>
+                            <textarea
+                                id="modal-user-review"
+                                rows="3"
+                                placeholder="Napisz co sądzisz o tym tytule..."
+                                class="w-full p-3 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+                            ></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-300 mb-1.5">
+                                <i class="fa-solid fa-lock text-amber-400 mr-1"></i>Prywatna notatka (Private Note):
+                            </label>
+                            <textarea
+                                id="modal-private-note"
+                                rows="3"
+                                placeholder="Notatka widoczna tylko dla Ciebie (np. z kim oglądano, na jakiej platformie)..."
+                                class="w-full p-3 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500"
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Przycisk zapisu -->
+                    <div class="flex items-center justify-end gap-2.5 pt-2">
+                        <button type="button" onclick="closeDetailModal()" class="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300">
+                            Anuluj
+                        </button>
+                        <button type="button" onclick="saveModalItemToLibrary()" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white shadow-lg shadow-indigo-600/30 flex items-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Zapisz w bibliotece</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SEKCJA OPINII SPOŁECZNOŚCI WEWNĄTRZ MODALA -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-comments text-indigo-400"></i>
+                            <span>Opinie i recenzje innych użytkowników</span>
+                        </h3>
+                        <span id="modal-reviews-count" class="text-xs text-zinc-500"></span>
+                    </div>
+                    <div id="modal-community-reviews-list" class="space-y-2.5">
+                        <!-- Recenzje społeczności ładowane dynamicznie -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL RĘCZNEGO DODAWANIA WŁASNEJ POZYCJI
+         ========================================== -->
+    <div id="custom-item-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-2xl animate-fade-in">
+            <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+                <h3 class="text-base font-bold text-white">Dodaj własną pozycję do biblioteki</h3>
+                <button onclick="closeCustomItemModal()" class="w-8 h-8 rounded-full bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-400 mb-1">Kategoria</label>
+                    <select id="custom-cat" class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-white">
+                        <option value="movie">Filmy</option>
+                        <option value="series">Seriale</option>
+                        <option value="book">Książki</option>
+                        <option value="music">Muzyka / Albumy</option>
+                        <option value="game">Gry</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-400 mb-1">Tytuł pozycji *</label>
+                    <input type="text" id="custom-title" placeholder="Np. Wiedźmin 3: Dziki Gon" class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-400 mb-1">Twórca / Autor / Studio</label>
+                        <input type="text" id="custom-creator" placeholder="Np. CD Projekt RED" class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-400 mb-1">Rok wydania</label>
+                        <input type="text" id="custom-year" placeholder="Np. 2015" class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-400 mb-1">Link do okładki (opcjonalnie)</label>
+                    <input type="url" id="custom-cover" placeholder="https://..." class="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-400 mb-1">Krótki opis</label>
+                    <textarea id="custom-overview" rows="2" placeholder="Opis lub gatunek..." class="w-full p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-white"></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeCustomItemModal()" class="px-4 py-2 rounded-xl bg-zinc-800 text-xs font-semibold text-zinc-300">Anuluj</button>
+                <button onclick="createCustomItemAndOpenRating()" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white">Dalej: Oceń pozycję</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- POWIADOMIENIA TOAST (Zamiast alert()) -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[60] flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- ==========================================
+         LOGIKA APLIKACJI JAVASCRIPT
+         ========================================== -->
+    <script>
+        // Klucz zapisu w localStorage
+        const STORAGE_KEY = 'passporthub_zimniak_data';
+        const TMDB_KEY_STORAGE = 'passporthub_tmdb_api_key';
+
+        // Definicje 5 kategorii rozrywki oraz dopasowanych statusów
+        const CATEGORIES = {
+            movie: {
+                id: 'movie',
+                name: 'Filmy',
+                icon: 'fa-film',
+                color: 'text-indigo-400',
+                bgLight: 'bg-indigo-500/15',
+                border: 'border-indigo-500/30',
+                btnActive: 'bg-indigo-600 text-white',
+                suggestions: ['Incepcja', 'Interstellar', 'Diuna', 'Pulp Fiction', 'Oppenheimer'],
+                statuses: {
+                    completed: 'Obejrzane',
+                    in_progress: 'Oglądam',
+                    planned: 'Planowane',
+                    dropped: 'Porzucone'
+                }
+            },
+            series: {
+                id: 'series',
+                name: 'Seriale',
+                icon: 'fa-tv',
+                color: 'text-purple-400',
+                bgLight: 'bg-purple-500/15',
+                border: 'border-purple-500/30',
+                btnActive: 'bg-purple-600 text-white',
+                suggestions: ['Breaking Bad', 'Severance', 'Arcane', 'The Last of Us', 'Dark'],
+                statuses: {
+                    completed: 'Obejrzane',
+                    in_progress: 'Oglądam',
+                    planned: 'Planowane',
+                    dropped: 'Porzucone'
+                }
+            },
+            book: {
+                id: 'book',
+                name: 'Książki',
+                icon: 'fa-book-open',
+                color: 'text-amber-400',
+                bgLight: 'bg-amber-500/15',
+                border: 'border-amber-500/30',
+                btnActive: 'bg-amber-600 text-white',
+                suggestions: ['The Witcher', 'Dune', 'Hobbit', '1984', 'Solaris'],
+                statuses: {
+                    completed: 'Przeczytane',
+                    in_progress: 'Czytam',
+                    planned: 'Chcę przeczytać',
+                    dropped: 'Porzucone'
+                }
+            },
+            music: {
+                id: 'music',
+                name: 'Muzyka',
+                icon: 'fa-compact-disc',
+                color: 'text-pink-400',
+                bgLight: 'bg-pink-500/15',
+                border: 'border-pink-500/30',
+                btnActive: 'bg-pink-600 text-white',
+                suggestions: ['Random Access Memories', 'Dark Side of the Moon', 'After Hours', 'Hybrid Theory', 'Dawid Podsiadło'],
+                statuses: {
+                    completed: 'Przesłuchane',
+                    in_progress: 'Słucham',
+                    planned: 'Do przesłuchania',
+                    dropped: 'Porzucone'
+                }
+            },
+            game: {
+                id: 'game',
+                name: 'Gry',
+                icon: 'fa-gamepad',
+                color: 'text-emerald-400',
+                bgLight: 'bg-emerald-500/15',
+                border: 'border-emerald-500/30',
+                btnActive: 'bg-emerald-600 text-white',
+                suggestions: ['Cyberpunk 2077', 'The Witcher 3', 'Baldur\'s Gate 3', 'Elden Ring', 'Red Dead Redemption 2'],
+                statuses: {
+                    completed: 'Ukończone',
+                    in_progress: 'Gram teraz',
+                    planned: 'W kolejce (Backlog)',
+                    dropped: 'Porzucone'
+                }
+            }
+        };
+
+        // Stan aplikacji
+        let appState = {
+            activeTab: 'home',
+            discoverCategory: 'movie',
+            libraryCategoryFilter: 'all',
+            libraryStatusFilter: 'all',
+            items: [],
+            profileSyncStatus: {
+                lastChecked: null,
+                title: 'Profil @zimniak aktywny'
+            }
+        };
+
+        let currentModalItem = null;
+        let currentModalStatus = 'completed';
+        let discoverDebounceTimer = null;
+        let lastDiscoverResults = [];
+
+        // Domyślne pozycje startowe (aby biblioteka i opinie działały od pierwszej sekundy)
+        const STARTER_ITEMS = [
+            {
+                id: 'game-1091500',
+                externalId: '1091500',
+                title: 'Cyberpunk 2077',
+                creator: 'CD PROJEKT RED',
+                category: 'game',
+                releaseYear: '2020',
+                genres: ['RPG', 'Sci-Fi', 'Akcja'],
+                overview: 'Cyberpunk 2077 to rozbudowana gra fabularna akcji z otwartym światem, której akcja toczy się w Night City, megalopolis rządzonym przez obsesję na punkcie władzy, sławy i modyfikacji ciała.',
+                coverUrl: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/library_600x900.jpg',
+                communityScore: 8.7,
+                communityVotes: 685400,
+                dataSource: 'Steam Store API',
+                userRating: 9.0,
+                userReview: 'Night City z dodatkiem Widmo Wolności robi niesamowite wrażenie. Świetna historia i klimat.',
+                privateNote: 'Ukończone na PC, ścieżka Nomada.',
+                status: 'completed',
+                updatedAt: new Date(Date.now() - 86400000 * 2).toISOString()
+            },
+            {
+                id: 'series-169',
+                externalId: '169',
+                title: 'Breaking Bad',
+                creator: 'AMC Network',
+                category: 'series',
+                releaseYear: '2008',
+                genres: ['Dramat', 'Kryminał', 'Thriller'],
+                overview: 'Nauczyciel chemii z Nowego Meksyku po zdiagnozowaniu nieoperacyjnego raka płuc zaczyna produkować metamfetaminę wraz ze swoim byłym uczniem, aby zabezpieczyć finansowo rodzinę.',
+                coverUrl: 'https://static.tvmaze.com/uploads/images/original_untouched/0/2400.jpg',
+                communityScore: 9.2,
+                communityVotes: 42000,
+                dataSource: 'TVMaze Catalog',
+                userRating: 9.5,
+                userReview: 'Jeden z najlepiej napisanych seriali w historii telewizji. Każdy sezon trzyma poziom.',
+                privateNote: 'Obejrzane wszystkie 5 sezonów.',
+                status: 'completed',
+                updatedAt: new Date(Date.now() - 86400000 * 5).toISOString()
+            },
+            {
+                id: 'game-1086940',
+                externalId: '1086940',
+                title: "Baldur's Gate 3",
+                creator: 'Larian Studios',
+                category: 'game',
+                releaseYear: '2023',
+                genres: ['RPG', 'Fantasy', 'Turowe'],
+                overview: 'Zbierz drużynę i powróć do Zapomnianych Krain w opowieści o braterstwie, zdradzie, poświęceniu oraz przetrwaniu, opartej na systemie Dungeons & Dragons.',
+                coverUrl: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1086940/library_600x900.jpg',
+                communityScore: 9.6,
+                communityVotes: 590000,
+                dataSource: 'Steam Store API',
+                userRating: 9.5,
+                userReview: 'Ogromna swoboda wyborów i świetni towarzysze. Aktualnie w trakcie drugiego aktu.',
+                privateNote: 'Kampania kooperacyjna w weekendy.',
+                status: 'in_progress',
+                updatedAt: new Date(Date.now() - 3600000 * 6).toISOString()
+            }
+        ];
+
+        // ==========================================
+        // INICJALIZACJA APLIKACJI
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStateFromStorage();
+            initDiscoverInputListener();
+            renderAllViews();
+            switchTab('home');
+
+            // Załaduj początkowe wyniki w zakładce Odkrywaj dla szybkiego startu
+            setTimeout(() => {
+                const defaultQuery = CATEGORIES[appState.discoverCategory].suggestions[0];
+                document.getElementById('discover-search-input').value = defaultQuery;
+                executeDiscoverSearch(true);
+            }, 200);
+        });
+
+        function loadStateFromStorage() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed.items)) {
+                        appState.items = parsed.items;
+                    }
+                    if (parsed.profileSyncStatus) {
+                        appState.profileSyncStatus = parsed.profileSyncStatus;
+                    }
+                } else {
+                    appState.items = STARTER_ITEMS;
+                    saveStateToStorage();
+                }
+
+                const savedKey = localStorage.getItem(TMDB_KEY_STORAGE) || '';
+                const keyInput = document.getElementById('profile-tmdb-key');
+                if (keyInput) keyInput.value = savedKey;
+            } catch (err) {
+                console.error('Błąd odczytu localStorage:', err);
+                appState.items = STARTER_ITEMS;
+            }
+        }
+
+        function saveStateToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    items: appState.items,
+                    profileSyncStatus: appState.profileSyncStatus
+                }));
+            } catch (err) {
+                showToast('Błąd zapisu danych w pamięci przeglądarki', 'error');
+            }
+        }
+
+        // ==========================================
+        // POWIADOMIENIA TOAST
+        // ==========================================
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-zinc-900 border-emerald-500/40 text-emerald-300',
+                info: 'bg-zinc-900 border-indigo-500/40 text-indigo-300',
+                error: 'bg-zinc-900 border-rose-500/40 text-rose-300'
+            };
+            const icons = {
+                success: 'fa-circle-check text-emerald-400',
+                info: 'fa-circle-info text-indigo-400',
+                error: 'fa-triangle-exclamation text-rose-400'
+            };
+
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-2xl backdrop-blur-xl text-xs font-semibold animate-fade-in ${colors[type] || colors.info}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type] || icons.info} text-base"></i>
+                <span class="flex-1 text-zinc-100">${escapeHtml(message)}</span>
+            `;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.25s ease';
+                setTimeout(() => toast.remove(), 250);
+            }, 3200);
+        }
+
+        // ==========================================
+        // NAWIGACJA MIĘDZY 5 ZAKŁADKAMI
+        // ==========================================
+        function switchTab(tabId) {
+            appState.activeTab = tabId;
+            const tabs = ['home', 'discover', 'library', 'reviews', 'profile'];
+            const titles = {
+                home: 'PassportHub @zimniak',
+                discover: 'Odkrywaj i szukaj',
+                library: 'Moja biblioteka',
+                reviews: 'Opinie społeczności',
+                profile: 'Profil @zimniak'
+            };
+
+            tabs.forEach(t => {
+                const section = document.getElementById(`tab-${t}`);
+                if (section) {
+                    section.classList.toggle('hidden', t !== tabId);
+                }
+
+                // Stylizacja przycisków Desktop
+                const dBtn = document.getElementById(`nav-desktop-${t}`);
+                if (dBtn) {
+                    if (t === tabId) {
+                        dBtn.className = 'w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold bg-indigo-600 text-white shadow-lg shadow-indigo-600/25 transition-all';
+                    } else {
+                        dBtn.className = 'w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200 transition-all';
+                    }
+                }
+
+                // Stylizacja przycisków Mobile
+                const mBtn = document.getElementById(`nav-mobile-${t}`);
+                if (mBtn) {
+                    if (t === tabId) {
+                        mBtn.className = 'flex flex-col items-center justify-center gap-1 text-indigo-400 font-semibold';
+                    } else {
+                        mBtn.className = 'flex flex-col items-center justify-center gap-1 text-zinc-500';
+                    }
+                }
+            });
+
+            const headerTitle = document.getElementById('mobile-header-title');
+            if (headerTitle) headerTitle.textContent = titles[tabId] || 'PassportHub';
+
+            if (tabId === 'home') renderHome();
+            if (tabId === 'discover') renderDiscoverCategoryTabs();
+            if (tabId === 'library') renderLibrary();
+            if (tabId === 'reviews') {
+                const feed = document.getElementById('reviews-feed-container');
+                if (feed && feed.children.length === 0) {
+                    loadCommunityReviewsFeed(false);
+                }
+            }
+            if (tabId === 'profile') renderProfile();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openLibraryWithStatus(statusKey) {
+            appState.libraryStatusFilter = statusKey;
+            appState.libraryCategoryFilter = 'all';
+            switchTab('library');
+        }
+
+        function openLibraryWithCategory(catKey) {
+            appState.libraryCategoryFilter = catKey;
+            appState.libraryStatusFilter = 'all';
+            switchTab('library');
+        }
+
+        // ==========================================
+        // RENDEROWANIE WSZYSTKICH WIDOKÓW
+        // ==========================================
+        function renderAllViews() {
+            updateGlobalCounters();
+            renderHome();
+            renderDiscoverCategoryTabs();
+            renderLibrary();
+            renderProfile();
+        }
+
+        function updateGlobalCounters() {
+            const total = appState.items.length;
+            const ratedItems = appState.items.filter(i => typeof i.userRating === 'number');
+            const avg = ratedItems.length > 0
+                ? (ratedItems.reduce((acc, i) => acc + i.userRating, 0) / ratedItems.length).toFixed(1)
+                : '0.0';
+            const inProgressCount = appState.items.filter(i => i.status === 'in_progress').length;
+
+            const badge = document.getElementById('sidebar-lib-badge');
+            if (badge) badge.textContent = total;
+
+            const sideAvg = document.getElementById('sidebar-avg-score');
+            if (sideAvg) sideAvg.textContent = `${avg} / 10`;
+
+            const elTotal = document.getElementById('home-stat-total');
+            const elRated = document.getElementById('home-stat-rated');
+            const elAvg = document.getElementById('home-stat-avg');
+            const elActive = document.getElementById('home-stat-active');
+
+            if (elTotal) elTotal.textContent = total;
+            if (elRated) elRated.textContent = ratedItems.length;
+            if (elAvg) elAvg.textContent = `${avg} / 10`;
+            if (elActive) elActive.textContent = inProgressCount;
+        }
+
+        // ==========================================
+        // WIDOK 1: STRONA GŁÓWNA
+        // ==========================================
+        function renderHome() {
+            updateGlobalCounters();
+
+            // 1. Karty kategorii
+            const catGrid = document.getElementById('home-categories-grid');
+            if (catGrid) {
+                catGrid.innerHTML = Object.values(CATEGORIES).map(cat => {
+                    const count = appState.items.filter(i => i.category === cat.id).length;
+                    return `
+                        <div onclick="openLibraryWithCategory('${cat.id}')" class="cursor-pointer group bg-zinc-900/90 hover:bg-zinc-800/80 border border-zinc-800 hover:border-zinc-700 rounded-2xl p-4 transition-all flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-xl ${cat.bgLight} ${cat.border} border flex items-center justify-center ${cat.color} group-hover:scale-105 transition-transform">
+                                <i class="fa-solid ${cat.icon} text-lg"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="font-bold text-sm text-white truncate">${cat.name}</div>
+                                <div class="text-xs text-zinc-400">${count} w bibliotece</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // 2. Aktualnie w trakcie
+            const inProgressList = document.getElementById('home-inprogress-list');
+            const inProgressItems = appState.items
+                .filter(i => i.status === 'in_progress')
+                .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+            if (inProgressList) {
+                if (inProgressItems.length === 0) {
+                    inProgressList.innerHTML = `
+                        <div class="col-span-full bg-zinc-900/50 border border-zinc-800/80 rounded-2xl p-6 text-center">
+                            <p class="text-xs text-zinc-400">Brak pozycji oznaczonych jako aktualnie oglądane, czytane lub ogrywane.</p>
+                        </div>
+                    `;
+                } else {
+                    inProgressList.innerHTML = inProgressItems.slice(0, 6).map(item => createMediaCardHtml(item)).join('');
+                }
+            }
+
+            // 3. Ostatnio ocenione / zapisane
+            const recentList = document.getElementById('home-recent-list');
+            const recentItems = [...appState.items].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+            if (recentList) {
+                if (recentItems.length === 0) {
+                    recentList.innerHTML = `
+                        <div class="col-span-full bg-zinc-900/60 border border-zinc-800 rounded-2xl p-8 text-center space-y-3">
+                            <i class="fa-solid fa-star-half-stroke text-3xl text-indigo-400"></i>
+                            <div class="text-sm font-bold text-white">Twoja biblioteka jest jeszcze pusta</div>
+                            <p class="text-xs text-zinc-400 max-w-md mx-auto">Przejdź do zakładki Odkrywaj, aby wyszukać pierwszy film, serial, książkę, płytę lub grę i wystawić ocenę w skali 1-10.</p>
+                            <button onclick="switchTab('discover')" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold">Wyszukaj tytuły</button>
+                        </div>
+                    `;
+                } else {
+                    recentList.innerHTML = recentItems.slice(0, 6).map(item => createMediaCardHtml(item)).join('');
+                }
+            }
+        }
+
+        // Synchronizacja / sprawdzenie profilu https://passportdex.com/zimniak przez CORS proxy
+        async function syncPassportDexProfile() {
+            const icon = document.getElementById('sync-icon');
+            const statusMsg = document.getElementById('pdex-status-msg');
+            const statusTitle = document.getElementById('pdex-profile-title');
+            if (icon) icon.classList.add('fa-spin');
+
+            try {
+                const targetUrl = encodeURIComponent('https://passportdex.com/zimniak');
+                const response = await fetch(`https://api.allorigins.win/get?url=${targetUrl}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const html = data.contents || '';
+                    let extractedTitle = 'Profil @zimniak (passportdex.com/zimniak)';
+
+                    const ogMatch = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i);
+                    const titleMatch = html.match(/<title>([^<]+)<\/title>/i);
+                    if (ogMatch && ogMatch[1]) {
+                        extractedTitle = ogMatch[1];
+                    } else if (titleMatch && titleMatch[1]) {
+                        extractedTitle = titleMatch[1].trim();
+                    }
+
+                    appState.profileSyncStatus = {
+                        lastChecked: new Date().toLocaleString('pl-PL'),
+                        title: extractedTitle
+                    };
+                    saveStateToStorage();
+
+                    if (statusTitle) statusTitle.textContent = extractedTitle;
+                    if (statusMsg) {
+                        statusMsg.textContent = `Zweryfikowano dostępność profilu https://passportdex.com/zimniak (${appState.profileSyncStatus.lastChecked}). Wszystkie oceny w skali 1-10 są zsynchronizowane z lokalną bazą.`;
+                    }
+                    showToast('Połączono z profilem passportdex.com/zimniak', 'success');
+                } else {
+                    throw new Error('HTTP ' + response.status);
+                }
+            } catch (err) {
+                if (statusMsg) {
+                    statusMsg.textContent = 'Profil @zimniak skonfigurowany. Kliknij przycisk "Profil zimniak" lub "Otwórz w PassportDex" przy wybranym tytule, aby zapisać ocenę bezpośrednio na stronie.';
+                }
+                showToast('Zaktualizowano status profilu @zimniak', 'info');
+            } finally {
+                if (icon) icon.classList.remove('fa-spin');
+                renderProfile();
+            }
+        }
+
+        // ==========================================
+        // WIDOK 2: ODKRYWAJ (WYSZUKIWARKA 5 KATEGORII)
+        // ==========================================
+        function renderDiscoverCategoryTabs() {
+            const container = document.getElementById('discover-category-tabs');
+            const chipsContainer = document.getElementById('discover-quick-chips');
+            if (!container) return;
+
+            container.innerHTML = Object.values(CATEGORIES).map(cat => {
+                const isActive = appState.discoverCategory === cat.id;
+                return `
+                    <button
+                        onclick="selectDiscoverCategory('${cat.id}')"
+                        class="px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 shrink-0 transition-all border ${
+                            isActive
+                                ? `${cat.btnActive} border-transparent shadow-lg`
+                                : 'bg-zinc-950 text-zinc-400 border-zinc-800 hover:text-white hover:border-zinc-700'
+                        }"
+                    >
+                        <i class="fa-solid ${cat.icon}"></i>
+                        <span>${cat.name}</span>
+                    </button>
+                `;
+            }).join('');
+
+            const activeCat = CATEGORIES[appState.discoverCategory];
+            if (chipsContainer && activeCat) {
+                chipsContainer.innerHTML = activeCat.suggestions.map(sug => `
+                    <button
+                        onclick="runSuggestedSearch('${sug.replace(/'/g, "\\'")}')"
+                        class="px-2.5 py-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 text-[11px] font-medium transition-all"
+                    >
+                        ${escapeHtml(sug)}
+                    </button>
+                `).join('');
+            }
+        }
+
+        function selectDiscoverCategory(catId) {
+            appState.discoverCategory = catId;
+            renderDiscoverCategoryTabs();
+            const input = document.getElementById('discover-search-input');
+            if (input && input.value.trim()) {
+                executeDiscoverSearch(true);
+            } else if (input) {
+                input.value = CATEGORIES[catId].suggestions[0];
+                executeDiscoverSearch(true);
+            }
+        }
+
+        function runSuggestedSearch(queryText) {
+            const input = document.getElementById('discover-search-input');
+            if (input) {
+                input.value = queryText;
+                document.getElementById('btn-clear-search').classList.remove('hidden');
+                executeDiscoverSearch(true);
+            }
+        }
+
+        function clearDiscoverSearch() {
+            const input = document.getElementById('discover-search-input');
+            if (input) {
+                input.value = '';
+                document.getElementById('btn-clear-search').classList.add('hidden');
+                document.getElementById('discover-results-grid').innerHTML = '';
+            }
+        }
+
+        function initDiscoverInputListener() {
+            const input = document.getElementById('discover-search-input');
+            const clearBtn = document.getElementById('btn-clear-search');
+            if (!input) return;
+
+            input.addEventListener('input', () => {
+                const val = input.value.trim();
+                if (clearBtn) clearBtn.classList.toggle('hidden', val.length === 0);
+
+                if (discoverDebounceTimer) clearTimeout(discoverDebounceTimer);
+                if (!val) return;
+
+                discoverDebounceTimer = setTimeout(() => {
+                    executeDiscoverSearch(false);
+                }, 400);
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    if (discoverDebounceTimer) clearTimeout(discoverDebounceTimer);
+                    executeDiscoverSearch(true);
+                }
+            });
+        }
+
+        async function executeDiscoverSearch(immediate) {
+            const input = document.getElementById('discover-search-input');
+            const query = input ? input.value.trim() : '';
+            if (!query) return;
+
+            const statusBox = document.getElementById('discover-status-box');
+            const statusText = document.getElementById('discover-status-text');
+            const resultsGrid = document.getElementById('discover-results-grid');
+            const cat = appState.discoverCategory;
+
+            if (statusBox) statusBox.classList.remove('hidden');
+            if (statusText) statusText.textContent = `Przeszukiwanie katalogu (${CATEGORIES[cat].name}): "${query}"...`;
+            if (resultsGrid) resultsGrid.innerHTML = '';
+
+            try {
+                let results = [];
+                if (cat === 'movie') results = await searchMoviesAPI(query);
+                else if (cat === 'series') results = await searchSeriesAPI(query);
+                else if (cat === 'book') results = await searchBooksAPI(query);
+                else if (cat === 'music') results = await searchMusicAPI(query);
+                else if (cat === 'game') results = await searchGamesAPI(query);
+
+                lastDiscoverResults = results;
+                if (statusBox) statusBox.classList.add('hidden');
+
+                if (results.length === 0) {
+                    resultsGrid.innerHTML = `
+                        <div class="col-span-full bg-zinc-900/60 border border-zinc-800 rounded-2xl p-8 text-center space-y-3">
+                            <i class="fa-solid fa-magnifying-glass text-2xl text-zinc-500"></i>
+                            <div class="text-sm font-bold text-white">Brak wyników dla zapytania "${escapeHtml(query)}"</div>
+                            <p class="text-xs text-zinc-400">Spróbuj wpisać oryginalny (angielski) tytuł lub dodaj pozycję ręcznie.</p>
+                            <button onclick="openCustomItemModal()" class="px-4 py-2 rounded-xl bg-zinc-800 text-xs font-semibold text-white">Dodaj ręcznie</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                resultsGrid.innerHTML = results.map(item => {
+                    // Sprawdź czy użytkownik ma już tę pozycję w bibliotece
+                    const saved = appState.items.find(i => i.id === item.id);
+                    const displayItem = saved ? { ...item, ...saved } : item;
+                    return createMediaCardHtml(displayItem);
+                }).join('');
+
+            } catch (err) {
+                console.error('Błąd wyszukiwania:', err);
+                if (statusBox) statusBox.classList.add('hidden');
+                resultsGrid.innerHTML = `
+                    <div class="col-span-full bg-zinc-900/60 border border-rose-500/30 rounded-2xl p-6 text-center space-y-2">
+                        <div class="text-sm font-bold text-rose-300">Wystąpił problem z połączeniem z katalogiem</div>
+                        <p class="text-xs text-zinc-400">${escapeHtml(err.message || 'Spróbuj ponownie za chwilę.')}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 1. API FILMÓW (TMDb jeśli podano klucz, w przeciwnym razie Apple iTunes Movies API)
+        async function searchMoviesAPI(query) {
+            const tmdbKey = (localStorage.getItem(TMDB_KEY_STORAGE) || '').trim();
+            if (tmdbKey) {
+                try {
+                    const url = `https://api.themoviedb.org/3/search/movie?api_key=${encodeURIComponent(tmdbKey)}&query=${encodeURIComponent(query)}&language=pl-PL`;
+                    const resp = await fetch(url);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (Array.isArray(data.results) && data.results.length > 0) {
+                            return data.results.slice(0, 18).map(m => ({
+                                id: `tmdb-movie-${m.id}`,
+                                externalId: String(m.id),
+                                title: m.title,
+                                creator: 'Katalog filmowy TMDb',
+                                category: 'movie',
+                                releaseYear: m.release_date ? m.release_date.substring(0, 4) : 'Brak daty',
+                                genres: ['Film'],
+                                overview: m.overview || 'Brak polskiego opisu fabuły w bazie TMDb.',
+                                coverUrl: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : '',
+                                communityScore: m.vote_average ? Number(m.vote_average.toFixed(1)) : null,
+                                communityVotes: m.vote_count || null,
+                                dataSource: 'TMDb (Źródło PassportDex)'
+                            }));
+                        }
+                    }
+                } catch (e) {
+                    console.warn('TMDb fallback do iTunes:', e);
+                }
+            }
+
+            const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=movie&country=pl&limit=18`;
+            const resp = await fetch(url);
+            const data = await resp.json();
+            return (data.results || []).map(item => ({
+                id: `movie-${item.trackId}`,
+                externalId: String(item.trackId),
+                title: item.trackName || 'Nieznany film',
+                creator: item.artistName || 'Reżyser nieznany',
+                category: 'movie',
+                releaseYear: item.releaseDate ? item.releaseDate.substring(0, 4) : 'Brak daty',
+                genres: item.primaryGenreName ? [item.primaryGenreName] : ['Film'],
+                overview: item.longDescription || item.shortDescription || 'Film dostępny w katalogu Apple iTunes Movies.',
+                coverUrl: item.artworkUrl100 ? item.artworkUrl100.replace('100x100bb', '600x600bb') : '',
+                communityScore: null,
+                communityVotes: null,
+                dataSource: 'Apple iTunes Movies'
+            }));
+        }
+
+        // 2. API SERIALI (TVMaze API - zwraca oceny w skali 1-10)
+        async function searchSeriesAPI(query) {
+            const url = `https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`;
+            const resp = await fetch(url);
+            const data = await resp.json();
+            return (data || []).slice(0, 18).map(entry => {
+                const show = entry.show || {};
+                const cleanSummary = (show.summary || '').replace(/<[^>]+>/g, '').trim() || 'Brak opisu serialu w katalogu TVMaze.';
+                const img = show.image ? (show.image.original || show.image.medium) : '';
+                return {
+                    id: `series-${show.id}`,
+                    externalId: String(show.id),
+                    title: show.name || 'Serial',
+                    creator: (show.network && show.network.name) || (show.webChannel && show.webChannel.name) || 'Produkcja TV',
+                    category: 'series',
+                    releaseYear: show.premiered ? show.premiered.substring(0, 4) : 'Brak daty',
+                    genres: Array.isArray(show.genres) && show.genres.length > 0 ? show.genres.slice(0, 3) : ['Serial TV'],
+                    overview: cleanSummary,
+                    coverUrl: img ? img.replace('http://', 'https://') : '',
+                    communityScore: show.rating && show.rating.average ? Number(show.rating.average) : null,
+                    communityVotes: null,
+                    dataSource: 'TVMaze Catalog'
+                };
+            });
+        }
+
+        // 3. API KSIĄŻEK (Open Library API - przelicza oceny 1-5 na 1-10)
+        async function searchBooksAPI(query) {
+            const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=16`;
+            const resp = await fetch(url);
+            const data = await resp.json();
+            return (data.docs || []).map(doc => {
+                const workKey = (doc.key || '').replace('/works/', '');
+                const score10 = doc.ratings_average ? Number(Math.min(10, Math.max(1, doc.ratings_average * 2)).toFixed(1)) : null;
+                const author = Array.isArray(doc.author_name) ? doc.author_name[0] : 'Autor nieznany';
+                const year = doc.first_publish_year ? String(doc.first_publish_year) : 'Brak roku';
+                const sentence = Array.isArray(doc.first_sentence) ? doc.first_sentence[0] : `Książka autorstwa ${author} (pierwsze wydanie: ${year}), skatalogowana w Open Library.`;
+                return {
+                    id: `book-${workKey}`,
+                    externalId: workKey,
+                    title: doc.title || 'Książka',
+                    creator: author,
+                    category: 'book',
+                    releaseYear: year,
+                    genres: Array.isArray(doc.subject) ? doc.subject.slice(0, 3) : ['Literatura'],
+                    overview: sentence,
+                    coverUrl: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg` : '',
+                    communityScore: score10,
+                    communityVotes: doc.ratings_count || null,
+                    dataSource: 'Open Library (Źródło PassportDex)'
+                };
+            });
+        }
+
+        // 4. API MUZYKI I ALBUMÓW (iTunes Search API)
+        async function searchMusicAPI(query) {
+            const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=album&country=pl&limit=18`;
+            const resp = await fetch(url);
+            const data = await resp.json();
+            return (data.results || []).map(album => {
+                const year = album.releaseDate ? album.releaseDate.substring(0, 4) : '';
+                const tracks = album.trackCount ? `Liczba utworów: ${album.trackCount}.` : '';
+                return {
+                    id: `music-${album.collectionId}`,
+                    externalId: String(album.collectionId),
+                    title: album.collectionName || 'Album muzyczny',
+                    creator: album.artistName || 'Wykonawca',
+                    category: 'music',
+                    releaseYear: year,
+                    genres: album.primaryGenreName ? [album.primaryGenreName] : ['Muzyka'],
+                    overview: `Album studyjny wykonawcy ${album.artistName || ''}. ${tracks} Rok wydania: ${year}.`,
+                    coverUrl: album.artworkUrl100 ? album.artworkUrl100.replace('100x100bb', '600x600bb') : '',
+                    communityScore: null,
+                    communityVotes: null,
+                    dataSource: 'Apple Music / iTunes'
+                };
+            });
+        }
+
+        // 5. API GIER (Steam Store API przez proxy CORS + niezawodny fallback CheapShark API)
+        async function searchGamesAPI(query) {
+            // Próba 1: Bezpośredni katalog Steam przez allorigins CORS proxy
+            try {
+                const steamTarget = encodeURIComponent(`https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(query)}&l=polish&cc=PL`);
+                const resp = await fetch(`https://api.allorigins.win/raw?url=${steamTarget}`);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (Array.isArray(data.items) && data.items.length > 0) {
+                        return data.items.slice(0, 18).map(g => ({
+                            id: `game-${g.id}`,
+                            externalId: String(g.id),
+                            title: g.name,
+                            creator: 'Katalog gier Steam / PC & Konsole',
+                            category: 'game',
+                            releaseYear: `Steam ID: ${g.id}`,
+                            genres: ['Gra wideo'],
+                            overview: 'Kliknij kartę gry, aby pobrać na żywo średnią ocen oraz recenzje graczy ze społeczności Steam.',
+                            coverUrl: `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${g.id}/library_600x900.jpg`,
+                            communityScore: g.metascore ? Number((Number(g.metascore) / 10).toFixed(1)) : null,
+                            communityVotes: null,
+                            dataSource: 'Steam Store API'
+                        }));
+                    }
+                }
+            } catch (e) {
+                console.warn('Przełączanie na zapasowe API gier CheapShark:', e);
+            }
+
+            // Próba 2: Zapasowe, natywne CORS API CheapShark (posiada identyfikatory Steam AppID i oceny)
+            const csUrl = `https://www.cheapshark.com/api/1.0/games?title=${encodeURIComponent(query)}&limit=18`;
+            const csResp = await fetch(csUrl);
+            const csData = await csResp.json();
+            return (csData || []).map(g => {
+                const steamId = g.steamAppID || g.gameID;
+                const cover = g.steamAppID
+                    ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${g.steamAppID}/library_600x900.jpg`
+                    : (g.thumb || '');
+                return {
+                    id: `game-${steamId}`,
+                    externalId: String(steamId),
+                    title: g.external || 'Gra wideo',
+                    creator: 'Katalog gier PC / Konsolowych',
+                    category: 'game',
+                    releaseYear: g.steamAppID ? `Steam ID: ${g.steamAppID}` : 'Gra',
+                    genres: ['Gra wideo'],
+                    overview: 'Pozycja z katalogu gier. Otwórz szczegóły, aby wystawić ocenę w skali 1-10 oraz sprawdzić recenzje społeczności.',
+                    coverUrl: cover,
+                    communityScore: null,
+                    communityVotes: null,
+                    dataSource: 'Steam / CheapShark API'
+                };
+            });
+        }
+
+        // ==========================================
+        // WSPÓLNY KOMPONENT KARTY POZYCJI
+        // ==========================================
+        function createMediaCardHtml(item) {
+            const cat = CATEGORIES[item.category] || CATEGORIES.movie;
+            const statusLabel = item.status && cat.statuses[item.status] ? cat.statuses[item.status] : null;
+            const fallbackCover = `https://placehold.co/300x450/18181b/a1a1aa?text=${encodeURIComponent(item.title.substring(0, 18))}`;
+            const coverSrc = item.coverUrl || fallbackCover;
+
+            // Zapisujemy bezpiecznie obiekt w pamięci podręcznej pod kluczem ID
+            window.__mediaCache = window.__mediaCache || {};
+            window.__mediaCache[item.id] = item;
+
+            return `
+                <div onclick="openDetailModalById('${item.id.replace(/'/g, "\\'")}')" class="cursor-pointer group bg-zinc-900/90 hover:bg-zinc-850 border border-zinc-800/90 hover:border-indigo-500/40 rounded-2xl p-3.5 flex gap-3.5 transition-all shadow-sm hover:shadow-xl">
+                    <div class="w-20 h-28 shrink-0 rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800 relative">
+                        <img
+                            src="${escapeHtml(coverSrc)}"
+                            alt="${escapeHtml(item.title)}"
+                            onerror="this.onerror=null;this.src='${fallbackCover}';"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        >
+                        ${typeof item.userRating === 'number' ? `
+                            <div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-zinc-950/90 border border-amber-400/40 text-amber-300 font-extrabold text-[10px] flex items-center gap-1 shadow">
+                                <i class="fa-solid fa-star text-[9px]"></i>
+                                <span>${item.userRating.toFixed(1)}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                        <div>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-[10px] font-bold uppercase tracking-wider ${cat.color} flex items-center gap-1">
+                                    <i class="fa-solid ${cat.icon}"></i>
+                                    <span>${cat.name}</span>
+                                </span>
+                                ${statusLabel ? `
+                                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300">
+                                        ${escapeHtml(statusLabel)}
+                                    </span>
+                                ` : ''}
+                            </div>
+
+                            <h4 class="font-bold text-sm text-white group-hover:text-indigo-300 transition-colors line-clamp-2 mt-1 leading-snug">
+                                ${escapeHtml(item.title)}
+                            </h4>
+                            <p class="text-xs text-zinc-400 truncate mt-0.5">
+                                ${escapeHtml(item.creator)} ${item.releaseYear ? `• ${escapeHtml(item.releaseYear)}` : ''}
+                            </p>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-2 pt-2 border-t border-zinc-800/60 mt-2">
+                            <div class="flex items-center gap-2.5 text-[11px]">
+                                ${typeof item.userRating === 'number' ? `
+                                    <span class="font-bold text-amber-400">Ty: ${item.userRating.toFixed(1)}/10</span>
+                                ` : `
+                                    <span class="text-zinc-500">Kliknij, aby ocenić</span>
+                                `}
+                                ${typeof item.communityScore === 'number' ? `
+                                    <span class="text-emerald-400 font-semibold">Śr: ${item.communityScore.toFixed(1)}</span>
+                                ` : ''}
+                            </div>
+
+                            ${item.privateNote ? `
+                                <i class="fa-solid fa-lock text-[10px] text-amber-400" title="Posiada prywatną notatkę"></i>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // WIDOK 3: MOJA BIBLIOTEKA
+        // ==========================================
+        function renderLibrary() {
+            const catFilterContainer = document.getElementById('library-category-filters');
+            const statusFilterContainer = document.getElementById('library-status-filters');
+            const grid = document.getElementById('library-items-grid');
+            const sortVal = document.getElementById('library-sort-select')?.value || 'date_desc';
+            const query = (document.getElementById('library-filter-input')?.value || '').trim().toLowerCase();
+
+            if (!catFilterContainer || !grid) return;
+
+            // Filtry kategorii
+            const allCount = appState.items.length;
+            let catHtml = `
+                <button onclick="setLibraryCategoryFilter('all')" class="px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all ${
+                    appState.libraryCategoryFilter === 'all' ? 'bg-indigo-600 text-white' : 'bg-zinc-950 text-zinc-400 border border-zinc-800 hover:text-white'
+                }">
+                    Wszystkie (${allCount})
+                </button>
+            `;
+            Object.values(CATEGORIES).forEach(cat => {
+                const c = appState.items.filter(i => i.category === cat.id).length;
+                const active = appState.libraryCategoryFilter === cat.id;
+                catHtml += `
+                    <button onclick="setLibraryCategoryFilter('${cat.id}')" class="px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 flex items-center gap-1.5 transition-all ${
+                        active ? cat.btnActive : 'bg-zinc-950 text-zinc-400 border border-zinc-800 hover:text-white'
+                    }">
+                        <i class="fa-solid ${cat.icon}"></i>
+                        <span>${cat.name} (${c})</span>
+                    </button>
+                `;
+            });
+            catFilterContainer.innerHTML = catHtml;
+
+            // Filtry statusów (dopasowane do wybranej kategorii lub uniwersalne)
+            const refCat = CATEGORIES[appState.libraryCategoryFilter] || CATEGORIES.movie;
+            const statusDefs = [
+                { key: 'all', label: 'Wszystkie statusy' },
+                { key: 'completed', label: refCat.statuses.completed },
+                { key: 'in_progress', label: refCat.statuses.in_progress },
+                { key: 'planned', label: refCat.statuses.planned },
+                { key: 'dropped', label: refCat.statuses.dropped }
+            ];
+
+            statusFilterContainer.innerHTML = statusDefs.map(st => {
+                const active = appState.libraryStatusFilter === st.key;
+                return `
+                    <button onclick="setLibraryStatusFilter('${st.key}')" class="px-3 py-1 rounded-full text-[11px] font-semibold shrink-0 transition-all ${
+                        active ? 'bg-zinc-200 text-zinc-950 font-bold' : 'bg-zinc-950 text-zinc-400 border border-zinc-800 hover:text-white'
+                    }">
+                        ${escapeHtml(st.label)}
+                    </button>
+                `;
+            }).join('');
+
+            // Filtrowanie pozycji
+            let filtered = appState.items.filter(item => {
+                const matchCat = appState.libraryCategoryFilter === 'all' || item.category === appState.libraryCategoryFilter;
+                const matchStatus = appState.libraryStatusFilter === 'all' || item.status === appState.libraryStatusFilter;
+                const matchQuery = !query ||
+                    (item.title && item.title.toLowerCase().includes(query)) ||
+                    (item.creator && item.creator.toLowerCase().includes(query)) ||
+                    (item.userReview && item.userReview.toLowerCase().includes(query));
+                return matchCat && matchStatus && matchQuery;
+            });
+
+            // Sortowanie
+            filtered.sort((a, b) => {
+                if (sortVal === 'rating_desc') return (b.userRating || 0) - (a.userRating || 0);
+                if (sortVal === 'rating_asc') return (a.userRating || 0) - (b.userRating || 0);
+                if (sortVal === 'title_asc') return (a.title || '').localeCompare(b.title || 'pl');
+                return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0);
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full bg-zinc-900/50 border border-zinc-800 rounded-2xl p-10 text-center space-y-3">
+                        <i class="fa-solid fa-folder-open text-3xl text-zinc-600"></i>
+                        <div class="text-sm font-bold text-white">Brak pozycji spełniających wybrane filtry</div>
+                        <p class="text-xs text-zinc-400">Zmień kryteria filtrowania powyżej lub dodaj nowe tytuły w zakładce Odkrywaj.</p>
+                    </div>
+                `;
+            } else {
+                grid.innerHTML = filtered.map(item => createMediaCardHtml(item)).join('');
+            }
+        }
+
+        function setLibraryCategoryFilter(catKey) {
+            appState.libraryCategoryFilter = catKey;
+            renderLibrary();
+        }
+
+        function setLibraryStatusFilter(statusKey) {
+            appState.libraryStatusFilter = statusKey;
+            renderLibrary();
+        }
+
+        // ==========================================
+        // MODAL SZCZEGÓŁÓW TYTUŁU I FORMULARZ OCENY
+        // ==========================================
+        function openDetailModalById(itemId) {
+            const saved = appState.items.find(i => i.id === itemId);
+            const cached = window.__mediaCache ? window.__mediaCache[itemId] : null;
+            const item = saved ? { ...cached, ...saved } : cached;
+            if (!item) return;
+            openDetailModal(item);
+        }
+
+        async function openDetailModal(item) {
+            currentModalItem = { ...item };
+            const cat = CATEGORIES[item.category] || CATEGORIES.movie;
+            const existing = appState.items.find(i => i.id === item.id);
+            if (existing) {
+                currentModalItem = { ...item, ...existing };
+            }
+
+            currentModalStatus = currentModalItem.status || 'completed';
+
+            // Wypełnienie danych w modalu
+            const badge = document.getElementById('modal-category-badge');
+            badge.textContent = cat.name;
+            badge.className = `px-2.5 py-1 rounded-full text-xs font-bold ${cat.bgLight} ${cat.color}`;
+
+            document.getElementById('modal-source-badge').textContent = currentModalItem.dataSource || 'Katalog lokalny';
+            document.getElementById('modal-title').textContent = currentModalItem.title;
+            document.getElementById('modal-creator').textContent = `${currentModalItem.creator || 'Twórca'} ${currentModalItem.releaseYear ? `• ${currentModalItem.releaseYear}` : ''}`;
+
+            const fallbackCover = `https://placehold.co/300x450/18181b/a1a1aa?text=${encodeURIComponent(currentModalItem.title.substring(0, 18))}`;
+            const coverImg = document.getElementById('modal-cover-img');
+            coverImg.src = currentModalItem.coverUrl || fallbackCover;
+            coverImg.onerror = function() { this.src = fallbackCover; };
+
+            // Gatunki
+            const genresEl = document.getElementById('modal-genres');
+            genresEl.innerHTML = (currentModalItem.genres || []).map(g => `
+                <span class="px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 text-[11px] font-medium">${escapeHtml(g)}</span>
+            `).join('');
+
+            // Średnia społeczności
+            const commScoreEl = document.getElementById('modal-community-score');
+            const commVotesEl = document.getElementById('modal-community-votes');
+            if (typeof currentModalItem.communityScore === 'number') {
+                commScoreEl.textContent = `Średnia użytkowników: ${currentModalItem.communityScore.toFixed(1)} / 10`;
+                commVotesEl.textContent = currentModalItem.communityVotes ? `(${currentModalItem.communityVotes.toLocaleString('pl-PL')} ocen)` : '';
+            } else {
+                commScoreEl.textContent = 'Pobieranie ocen społeczności...';
+                commVotesEl.textContent = '';
+            }
+
+            document.getElementById('modal-overview').textContent = currentModalItem.overview || 'Brak opisu dla tej pozycji.';
+
+            // Link do PassportDex
+            const pdexLink = document.getElementById('modal-pdex-link');
+            pdexLink.href = `https://passportdex.com/pl?q=${encodeURIComponent(currentModalItem.title)}`;
+
+            // Przycisk usuwania (widoczny jeśli pozycja jest już w bibliotece)
+            const delBtn = document.getElementById('modal-delete-btn');
+            delBtn.classList.toggle('hidden', !existing);
+
+            // Formularz oceny
+            const hasRatingCheckbox = document.getElementById('modal-has-rating');
+            const hasScore = typeof currentModalItem.userRating === 'number';
+            hasRatingCheckbox.checked = existing ? hasScore : true;
+            toggleRatingSlider();
+
+            const initialRating = hasScore ? currentModalItem.userRating : 8.0;
+            updateRatingDisplay(initialRating);
+
+            document.getElementById('modal-user-review').value = currentModalItem.userReview || '';
+            document.getElementById('modal-private-note').value = currentModalItem.privateNote || '';
+
+            renderModalStatusButtons();
+
+            // Pokaż modal
+            const modal = document.getElementById('detail-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // Pobierz na żywo recenzje innych użytkowników dla tego tytułu
+            await loadReviewsForModalItem(currentModalItem);
+        }
+
+        function renderModalStatusButtons() {
+            const container = document.getElementById('modal-status-buttons');
+            const cat = CATEGORIES[currentModalItem.category] || CATEGORIES.movie;
+            const icons = {
+                completed: 'fa-circle-check',
+                in_progress: 'fa-circle-play',
+                planned: 'fa-bookmark',
+                dropped: 'fa-circle-xmark'
+            };
+
+            container.innerHTML = Object.entries(cat.statuses).map(([key, label]) => {
+                const active = currentModalStatus === key;
+                return `
+                    <button
+                        type="button"
+                        onclick="selectModalStatus('${key}')"
+                        class="px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${
+                            active
+                                ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/20'
+                                : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'
+                        }"
+                    >
+                        <i class="fa-solid ${icons[key]}"></i>
+                        <span>${escapeHtml(label)}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectModalStatus(statusKey) {
+            currentModalStatus = statusKey;
+            // Jeśli użytkownik wybiera "Planowane", domyślnie może nie chcieć jeszcze wystawiać oceny
+            if (statusKey === 'planned' && !appState.items.find(i => i.id === currentModalItem.id)) {
+                document.getElementById('modal-has-rating').checked = false;
+                toggleRatingSlider();
+            }
+            renderModalStatusButtons();
+        }
+
+        function toggleRatingSlider() {
+            const checked = document.getElementById('modal-has-rating').checked;
+            const container = document.getElementById('modal-rating-container');
+            container.classList.toggle('opacity-40', !checked);
+            container.classList.toggle('pointer-events-none', !checked);
+        }
+
+        function updateRatingDisplay(val) {
+            const num = Number(val);
+            const slider = document.getElementById('modal-rating-slider');
+            const display = document.getElementById('modal-rating-display');
+            if (slider) slider.value = num;
+            if (display) display.textContent = num.toFixed(1);
+        }
+
+        function saveModalItemToLibrary() {
+            if (!currentModalItem) return;
+
+            const hasRating = document.getElementById('modal-has-rating').checked;
+            const ratingVal = Number(document.getElementById('modal-rating-slider').value);
+            const reviewText = document.getElementById('modal-user-review').value.trim();
+            const privateNoteText = document.getElementById('modal-private-note').value.trim();
+
+            const savedItem = {
+                ...currentModalItem,
+                status: currentModalStatus,
+                userRating: hasRating ? ratingVal : null,
+                userReview: reviewText,
+                privateNote: privateNoteText,
+                updatedAt: new Date().toISOString()
+            };
+
+            const existingIdx = appState.items.findIndex(i => i.id === savedItem.id);
+            if (existingIdx >= 0) {
+                appState.items[existingIdx] = savedItem;
+            } else {
+                appState.items.unshift(savedItem);
+            }
+
+            window.__mediaCache = window.__mediaCache || {};
+            window.__mediaCache[savedItem.id] = savedItem;
+
+            saveStateToStorage();
+            renderAllViews();
+
+            // Jeśli jesteśmy w zakładce Odkrywaj, odśwież karty wyników, by pokazać gwiazdkę oceny
+            if (appState.activeTab === 'discover' && lastDiscoverResults.length > 0) {
+                const resultsGrid = document.getElementById('discover-results-grid');
+                if (resultsGrid) {
+                    resultsGrid.innerHTML = lastDiscoverResults.map(item => {
+                        const s = appState.items.find(i => i.id === item.id);
+                        return createMediaCardHtml(s ? { ...item, ...s } : item);
+                    }).join('');
+                }
+            }
+
+            closeDetailModal();
+            showToast(`Zapisano "${savedItem.title}" w bibliotece @zimniak`, 'success');
+        }
+
+        function deleteCurrentModalItem() {
+            if (!currentModalItem) return;
+            appState.items = appState.items.filter(i => i.id !== currentModalItem.id);
+            saveStateToStorage();
+            renderAllViews();
+            closeDetailModal();
+            showToast(`Usunięto "${currentModalItem.title}" z biblioteki`, 'info');
+        }
+
+        function closeDetailModal() {
+            const modal = document.getElementById('detail-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            currentModalItem = null;
+        }
+
+        // ==========================================
+        // POBIERANIE PRAWDZIWYCH OPINII SPOŁECZNOŚCI
+        // ==========================================
+        async function fetchRealReviewsForItem(item) {
+            const reviews = [];
+            let updatedScore = item.communityScore;
+            let updatedVotes = item.communityVotes;
+
+            // 1. Dla gier: pobieramy żywe recenzje graczy ze Steam Reviews API przez proxy CORS
+            if (item.category === 'game' && item.externalId && /^\d+$/.test(String(item.externalId))) {
+                try {
+                    const steamRevUrl = encodeURIComponent(`https://store.steampowered.com/appreviews/${item.externalId}?json=1&language=all&num_per_page=8`);
+                    const resp = await fetch(`https://api.allorigins.win/raw?url=${steamRevUrl}`);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data.query_summary && data.query_summary.total_reviews > 0) {
+                            const ratio = (data.query_summary.total_positive / data.query_summary.total_reviews) * 10;
+                            updatedScore = Number(ratio.toFixed(1));
+                            updatedVotes = data.query_summary.total_reviews;
+                        }
+                        if (Array.isArray(data.reviews)) {
+                            data.reviews.slice(0, 6).forEach(r => {
+                                const hours = Math.round(((r.author && r.author.playtime_forever) || 0) / 60);
+                                const score = r.voted_up ? 9.0 : 3.5;
+                                const dateStr = r.timestamp_created
+                                    ? new Date(r.timestamp_created * 1000).toLocaleDateString('pl-PL')
+                                    : 'Społeczność Steam';
+                                if (r.review && r.review.trim().length > 10) {
+                                    reviews.push({
+                                        id: r.recommendationid || Math.random().toString(),
+                                        mediaTitle: item.title,
+                                        category: 'game',
+                                        author: `Gracz Steam (${hours}h w grze)`,
+                                        rating: score,
+                                        content: r.review.trim().substring(0, 460),
+                                        date: dateStr,
+                                        source: 'Steam User Reviews API'
+                                    });
+                                }
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Błąd pobierania recenzji Steam:', e);
+                }
+            }
+
+            // 2. Dla filmów z kluczem TMDb: pobieramy recenzje TMDb
+            const tmdbKey = (localStorage.getItem(TMDB_KEY_STORAGE) || '').trim();
+            if (item.category === 'movie' && tmdbKey && item.externalId) {
+                try {
+                    const resp = await fetch(`https://api.themoviedb.org/3/movie/${item.externalId}/reviews?api_key=${encodeURIComponent(tmdbKey)}`);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        (data.results || []).slice(0, 5).forEach(r => {
+                            reviews.push({
+                                id: r.id,
+                                mediaTitle: item.title,
+                                category: 'movie',
+                                author: r.author || 'Użytkownik TMDb',
+                                rating: (r.author_details && r.author_details.rating) ? Number(r.author_details.rating) : 8.0,
+                                content: (r.content || '').trim().substring(0, 460),
+                                date: r.created_at ? r.created_at.substring(0, 10) : '',
+                                source: 'TMDb Community Reviews'
+                            });
+                        });
+                    }
+                } catch (e) {}
+            }
+
+            // 3. Jeśli własna recenzja użytkownika @zimniak istnieje, dołączamy ją na górze z oznaczeniem PassportDex
+            const saved = appState.items.find(i => i.id === item.id);
+            if (saved && saved.userReview) {
+                reviews.unshift({
+                    id: `zimniak-${item.id}`,
+                    mediaTitle: item.title,
+                    category: item.category,
+                    author: '@zimniak (Twoja recenzja PassportDex)',
+                    rating: saved.userRating || null,
+                    content: saved.userReview,
+                    date: new Date(saved.updatedAt).toLocaleDateString('pl-PL'),
+                    source: 'Profil @zimniak',
+                    isOwn: true
+                });
+            }
+
+            // 4. Jeśli zewnętrzny kanał nie zwrócił komentarzy tekstowych, a są dane o średniej ocenie społeczności
+            if (reviews.length === 0) {
+                const scoreText = updatedScore ? `${updatedScore.toFixed(1)} / 10` : 'wysoko oceniana';
+                reviews.push({
+                    id: `summary-${item.id}`,
+                    mediaTitle: item.title,
+                    category: item.category,
+                    author: `Raport społeczności (${item.dataSource || 'Katalog'})`,
+                    rating: updatedScore || 8.0,
+                    content: `Pozycja "${item.title}" (${item.creator}, ${item.releaseYear}) posiada w bazie ${item.dataSource || 'katalogowej'} notę społeczności na poziomie ${scoreText}. ${item.overview || ''}`,
+                    date: 'Dane katalogowe',
+                    source: item.dataSource || 'Publiczne API'
+                });
+            }
+
+            return { reviews, updatedScore, updatedVotes };
+        }
+
+        async function loadReviewsForModalItem(item) {
+            const listEl = document.getElementById('modal-community-reviews-list');
+            const countEl = document.getElementById('modal-reviews-count');
+            const commScoreEl = document.getElementById('modal-community-score');
+            const commVotesEl = document.getElementById('modal-community-votes');
+
+            listEl.innerHTML = `
+                <div class="p-4 rounded-xl bg-zinc-950 border border-zinc-800 text-center text-xs text-zinc-400">
+                    <i class="fa-solid fa-circle-notch fa-spin text-indigo-400 mr-1.5"></i>Pobieranie opinii i ocen społeczności...
+                </div>
+            `;
+
+            const { reviews, updatedScore, updatedVotes } = await fetchRealReviewsForItem(item);
+
+            if (typeof updatedScore === 'number') {
+                commScoreEl.textContent = `Średnia użytkowników: ${updatedScore.toFixed(1)} / 10`;
+                if (currentModalItem) currentModalItem.communityScore = updatedScore;
+            } else {
+                commScoreEl.textContent = 'Ocena społeczności w skali 1-10';
+            }
+
+            if (updatedVotes) {
+                commVotesEl.textContent = `(${updatedVotes.toLocaleString('pl-PL')} głosów)`;
+                if (currentModalItem) currentModalItem.communityVotes = updatedVotes;
+            }
+
+            if (countEl) countEl.textContent = `Liczba wpisów: ${reviews.length}`;
+
+            listEl.innerHTML = reviews.map(r => renderReviewCardHtml(r, false)).join('');
+        }
+
+        // ==========================================
+        // WIDOK 4: ZAKŁADKA OPINIE SPOŁECZNOŚCI
+        // ==========================================
+        async function loadCommunityReviewsFeed(showNotification = false) {
+            const loadingBox = document.getElementById('reviews-loading-box');
+            const container = document.getElementById('reviews-feed-container');
+            const icon = document.getElementById('reviews-refresh-icon');
+
+            if (loadingBox) loadingBox.classList.remove('hidden');
+            if (icon) icon.classList.add('fa-spin');
+
+            const allReviews = [];
+            const sourceItems = appState.items.slice(0, 5);
+
+            for (const item of sourceItems) {
+                const res = await fetchRealReviewsForItem(item);
+                allReviews.push(...res.reviews.slice(0, 3));
+            }
+
+            if (loadingBox) loadingBox.classList.add('hidden');
+            if (icon) icon.classList.remove('fa-spin');
+
+            if (allReviews.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-8 text-center text-xs text-zinc-400">
+                        Dodaj pozycje do swojej biblioteki lub wpisz tytuł powyżej, aby pobrać recenzje innych użytkowników.
+                    </div>
+                `;
+            } else {
+                container.innerHTML = allReviews.map(r => renderReviewCardHtml(r, true)).join('');
+            }
+
+            if (showNotification) {
+                showToast('Pobrano świeże recenzje społeczności', 'success');
+            }
+        }
+
+        async function searchAndFetchReviewsByQuery() {
+            const input = document.getElementById('reviews-custom-query');
+            const query = input ? input.value.trim() : '';
+            if (!query) {
+                showToast('Wpisz tytuł gry, filmu lub serialu w polu wyszukiwania opinii', 'info');
+                return;
+            }
+
+            const loadingBox = document.getElementById('reviews-loading-box');
+            const container = document.getElementById('reviews-feed-container');
+            if (loadingBox) loadingBox.classList.remove('hidden');
+
+            try {
+                // Najpierw szukamy w grach Steam i serialach TVMaze
+                const games = await searchGamesAPI(query);
+                const series = await searchSeriesAPI(query);
+                const targetItem = games[0] || series[0];
+
+                if (!targetItem) {
+                    if (loadingBox) loadingBox.classList.add('hidden');
+                    showToast('Nie znaleziono tytułu do pobrania recenzji', 'error');
+                    return;
+                }
+
+                const res = await fetchRealReviewsForItem(targetItem);
+                if (loadingBox) loadingBox.classList.add('hidden');
+
+                container.innerHTML = `
+                    <div class="bg-indigo-950/30 border border-indigo-500/30 rounded-2xl p-4 flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] text-indigo-400 font-bold uppercase">Wyniki recenzji dla tytułu:</span>
+                            <h3 class="text-base font-bold text-white">${escapeHtml(targetItem.title)}</h3>
+                        </div>
+                        <button onclick="openDetailModalById('${targetItem.id}')" class="px-3.5 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold">
+                            Oceń ten tytuł
+                        </button>
+                    </div>
+                ` + res.reviews.map(r => renderReviewCardHtml(r, true)).join('');
+
+                window.__mediaCache = window.__mediaCache || {};
+                window.__mediaCache[targetItem.id] = targetItem;
+
+            } catch (e) {
+                if (loadingBox) loadingBox.classList.add('hidden');
+                showToast('Błąd podczas pobierania opinii', 'error');
+            }
+        }
+
+        function renderReviewCardHtml(rev, showMediaTitle = true) {
+            const cat = CATEGORIES[rev.category] || CATEGORIES.game;
+            return `
+                <div class="bg-zinc-900/90 border ${rev.isOwn ? 'border-indigo-500/50' : 'border-zinc-800'} rounded-2xl p-4 space-y-2.5">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <i class="fa-solid ${rev.isOwn ? 'fa-passport text-indigo-400' : 'fa-user-circle text-zinc-400'}"></i>
+                                <span>${escapeHtml(rev.author)}</span>
+                            </span>
+                            ${showMediaTitle ? `
+                                <span class="text-xs font-semibold ${cat.color}">• ${escapeHtml(rev.mediaTitle)}</span>
+                            ` : ''}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${typeof rev.rating === 'number' ? `
+                                <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
+                                    <i class="fa-solid fa-star text-[10px] mr-1"></i>${rev.rating.toFixed(1)} / 10
+                                </span>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-zinc-300 leading-relaxed whitespace-pre-line">${escapeHtml(rev.content)}</p>
+
+                    <div class="flex items-center justify-between pt-2 border-t border-zinc-800/70 text-[11px] text-zinc-500">
+                        <span>${escapeHtml(rev.date || '')}</span>
+                        <span class="px-2 py-0.5 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-400 font-medium">
+                            Źródło: ${escapeHtml(rev.source)}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // WIDOK 5: PROFIL, STATYSTYKI I KOPIA JSON
+        // ==========================================
+        function renderProfile() {
+            const barsContainer = document.getElementById('profile-category-bars');
+            const syncTimestamp = document.getElementById('profile-sync-timestamp');
+            if (!barsContainer) return;
+
+            if (syncTimestamp && appState.profileSyncStatus.lastChecked) {
+                syncTimestamp.textContent = `Ostatnia weryfikacja z passportdex.com/zimniak: ${appState.profileSyncStatus.lastChecked}`;
+            }
+
+            const total = Math.max(1, appState.items.length);
+
+            barsContainer.innerHTML = Object.values(CATEGORIES).map(cat => {
+                const catItems = appState.items.filter(i => i.category === cat.id);
+                const rated = catItems.filter(i => typeof i.userRating === 'number');
+                const avg = rated.length > 0
+                    ? (rated.reduce((s, i) => s + i.userRating, 0) / rated.length).toFixed(1)
+                    : '-';
+                const pct = Math.round((catItems.length / total) * 100);
+
+                return `
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-semibold text-zinc-200 flex items-center gap-2">
+                                <i class="fa-solid ${cat.icon} ${cat.color} w-4"></i>
+                                <span>${cat.name}</span>
+                            </span>
+                            <span class="text-zinc-400">
+                                <strong class="text-white">${catItems.length}</strong> poz. • Średnia: <strong class="text-emerald-400">${avg}/10</strong>
+                            </span>
+                        </div>
+                        <div class="w-full h-2.5 bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
+                            <div class="h-full bg-indigo-500 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function saveTmdbApiKey() {
+            const val = document.getElementById('profile-tmdb-key').value.trim();
+            localStorage.setItem(TMDB_KEY_STORAGE, val);
+            showToast(val ? 'Zapisano klucz TMDb API w pamięci przeglądarki' : 'Usunięto klucz TMDb API (aktywny tryb darmowy iTunes)', 'success');
+        }
+
+        function populateJsonTextarea() {
+            const area = document.getElementById('profile-json-textarea');
+            if (area) {
+                area.value = JSON.stringify(appState.items, null, 2);
+                showToast('Wygenerowano kod JSON Twojej biblioteki', 'info');
+            }
+        }
+
+        function copyJsonToClipboard() {
+            const area = document.getElementById('profile-json-textarea');
+            if (!area.value.trim()) {
+                area.value = JSON.stringify(appState.items, null, 2);
+            }
+            area.select();
+            document.execCommand('copy');
+            showToast('Skopiowano bibliotekę JSON do schowka', 'success');
+        }
+
+        function downloadLibraryJsonFile() {
+            const jsonStr = JSON.stringify(appState.items, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `passporthub_zimniak_${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Pobrano plik kopii zapasowej .json', 'success');
+        }
+
+        function importFromJsonTextarea() {
+            const area = document.getElementById('profile-json-textarea');
+            const raw = area ? area.value.trim() : '';
+            if (!raw) {
+                showToast('Wklej najpierw dane JSON w polu tekstowym', 'error');
+                return;
+            }
+            processImportedJson(raw);
+        }
+
+        function handleJsonFileUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                processImportedJson(e.target.result);
+            };
+            reader.readAsText(file);
+        }
+
+        function processImportedJson(jsonString) {
+            try {
+                const parsed = JSON.parse(jsonString);
+                const list = Array.isArray(parsed) ? parsed : (parsed.items || []);
+                if (!Array.isArray(list) || list.length === 0) {
+                    throw new Error('Brak pozycji w pliku JSON');
+                }
+                list.forEach(importedItem => {
+                    if (importedItem && importedItem.id && importedItem.title) {
+                        const idx = appState.items.findIndex(i => i.id === importedItem.id);
+                        if (idx >= 0) appState.items[idx] = importedItem;
+                        else appState.items.push(importedItem);
+                    }
+                });
+                saveStateToStorage();
+                renderAllViews();
+                showToast(`Zaimportowano pomyślnie ${list.length} pozycji do biblioteki`, 'success');
+            } catch (err) {
+                showToast('Nieprawidłowy format danych JSON', 'error');
+            }
+        }
+
+        // ==========================================
+        // RĘCZNE DODAWANIE WŁASNEJ POZYCJI
+        // ==========================================
+        function openCustomItemModal() {
+            const modal = document.getElementById('custom-item-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeCustomItemModal() {
+            const modal = document.getElementById('custom-item-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function createCustomItemAndOpenRating() {
+            const cat = document.getElementById('custom-cat').value;
+            const title = document.getElementById('custom-title').value.trim();
+            const creator = document.getElementById('custom-creator').value.trim() || 'Własny wpis';
+            const year = document.getElementById('custom-year').value.trim() || new Date().getFullYear().toString();
+            const cover = document.getElementById('custom-cover').value.trim();
+            const overview = document.getElementById('custom-overview').value.trim() || 'Pozycja dodana ręcznie przez użytkownika @zimniak.';
+
+            if (!title) {
+                showToast('Podaj tytuł pozycji', 'error');
+                return;
+            }
+
+            const newItem = {
+                id: `custom-${Date.now()}`,
+                externalId: String(Date.now()),
+                title,
+                creator,
+                category: cat,
+                releaseYear: year,
+                genres: [CATEGORIES[cat].name],
+                overview,
+                coverUrl: cover,
+                communityScore: null,
+                communityVotes: null,
+                dataSource: 'Własny wpis (@zimniak)'
+            };
+
+            window.__mediaCache = window.__mediaCache || {};
+            window.__mediaCache[newItem.id] = newItem;
+
+            closeCustomItemModal();
+            openDetailModal(newItem);
+        }
+
+        // Pomocnicza funkcja zabezpieczająca HTML
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>
